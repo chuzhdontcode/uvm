@@ -1,0 +1,84 @@
+default_language_version:
+  python: python3
+
+default_install_hook_types:
+  - pre-commit
+  - commit-msg
+
+repos:
+  # 1. Extras / common pre-commit hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+        exclude: ^uv[.]lock
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-yaml
+      - id: check-json
+      - id: check-toml
+      - id: debug-statements
+      - id: mixed-line-ending
+  # 2. Meta hooks
+  - repo: meta
+    hooks:
+      - id: check-hooks-apply
+        stages: [manual]
+      - id: check-useless-excludes
+        stages: [manual]
+
+  # 3. uv-pre-commit (lock, export, sync, compile)
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.8.15
+    hooks:
+      - id: uv-lock
+        args: ["--locked"]
+      - id: uv-export
+      - id: uv-sync
+        args: ["--locked", "--all-packages"]
+  # 4. Prettier
+  - repo: https://github.com/rbubley/mirrors-prettier
+    rev: v3.5.3
+    hooks:
+      - id: prettier
+        alias: markdownlint
+        stages: [pre-commit, manual]
+  # 5. Ruff: lint + format
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.0
+    hooks:
+      - id: ruff-check
+        types_or: &ruff-types-or [python, pyi, jupyter]
+        args: [--fix, --show-fixes]
+      - id: ruff-format
+        types_or: *ruff-types-or
+
+  # 6. Pyrefly type checking
+  - repo: https://github.com/facebook/pyrefly-pre-commit
+    rev: 0.0.1
+    hooks:
+      - id: pyrefly-typecheck-system
+        pass_filenames: false
+
+  # 7. Commit message style
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v3.27.0
+    hooks:
+      - id: commitizen
+        stages: [commit-msg]
+
+  # 8. Security checks
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.8.3
+    hooks:
+      - id: bandit
+
+  - repo: https://github.com/crate-ci/typos
+    rev: v1.32.0
+    hooks:
+      - id: typos
+        stages: [manual]
+        exclude_types: [jupyter]
+        exclude: ^uv[.]lock$|^requirements

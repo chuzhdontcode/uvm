@@ -1,0 +1,33 @@
+[project]
+name = "uvm"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [{ name = "Chu Zhen Hao" }]
+requires-python = ">=3.10"
+dependencies = [
+    "typer>=0.19.2",
+    "typing-extensions>=4.12.2 ; python_full_version < '3.11'",
+]
+
+[tool.pyrefly]
+project-includes = ["**/*"]
+project-excludes = ["**/node_modules", "**/__pycache__", '**/*venv/**\*']
+
+[project.scripts]
+uvm = "uvm:main"
+uvm-is-alive = "uvm.scripts.verify_installation:main"
+[build-system]
+requires = ["uv_build>=0.8.13,<0.9.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.3.0",
+    "pyrefly>=0.37.0",
+    "pytest>=8.4.2",
+    "pytest-sugar>=1.1.1",
+]
+dev-extras = ["ipykernel>=7.0.1", "ipython>=8.37.0"]
+
+[tool]
