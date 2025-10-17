@@ -1,6 +1,5 @@
 [project]
 name = "uvm"
-version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 authors = [{ name = "Chu Zhen Hao" }]
@@ -10,20 +9,21 @@ dependencies = [
     "typer>=0.19.2",
     "typing-extensions>=4.12.2 ; python_full_version < '3.11'",
 ]
-
-[tool.pyrefly]
-project-includes = ["**/*"]
-project-excludes = ["**/node_modules", "**/__pycache__", '**/*venv/**\*']
+dynamic = ["version"]
 
 [project.scripts]
 uvm = "uvm:main"
 uvm-is-alive = "uvm.scripts.verify_installation:main"
 [build-system]
-requires = ["uv_build>=0.8.13,<0.9.0"]
-build-backend = "uv_build"
+requires = ["hatchling>=1.25.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/uvm/_version.py"
 
 [dependency-groups]
 dev = [
+    "commitizen>=4.9.1",
     "pre-commit>=4.3.0",
     "pyrefly>=0.37.0",
     "pytest>=8.4.2",
@@ -31,7 +31,14 @@ dev = [
 ]
 dev-extras = ["ipykernel>=7.0.1", "ipython>=8.37.0"]
 
-[tool]
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.0.0"
+tag_format = "v$version"
+version_files = ["src/uvm/_version.py:__version__"]
+update_changelog_on_bump = true
+changelog_file = "CHANGELOG.md"
 
 [tool.ruff]
 line-length = 88
@@ -68,3 +75,7 @@ extend-select = [
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[tool.pyrefly]
+project-includes = ["**/*"]
+project-excludes = ["**/node_modules", "**/__pycache__", '**/*venv/**\*']
