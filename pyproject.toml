@@ -73,8 +73,13 @@ extend-select = [
     "UP",
 ]
 
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S"]
+"integration_tests/**" = ["S"]
+
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
 
 [tool.pyrefly]
 project-includes = ["**/*"]
