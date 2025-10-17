@@ -1,0 +1,40 @@
+[run]
+# Measure branch coverage and only for your code (adjust "src" if needed)
+branch = True
+source =
+    src
+# Ignore common non-source dirs
+omit =
+    */tests/*
+    */test_*.py
+    */.venv/*
+    */venv/*
+    */.tox/*
+    */build/*
+    */dist/*
+parallel = True
+disable_warnings = no-data-collected
+
+[report]
+skip_covered = True
+precision = 2
+exclude_lines =
+    pragma: no cover
+    if TYPE_CHECKING:
+    @overload
+    if __name__ == "__main__":
+    raise NotImplementedError
+    raise NotImplemented
+    pass
+
+[html]
+directory = coverage/html
+
+[xml]
+output = coverage/coverage.xml
+
+[paths]
+# Helps merge coverage from different OS/CI paths
+source =
+    src
+    */src
