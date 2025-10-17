@@ -74,6 +74,7 @@ repos:
     rev: 1.8.3
     hooks:
       - id: bandit
+        exclude: "(tests|integration_tests)/.*"
 
   - repo: https://github.com/crate-ci/typos
     rev: v1.32.0
@@ -82,3 +83,4 @@ repos:
         stages: [manual]
         exclude_types: [jupyter]
         exclude: ^uv[.]lock$|^requirements
+# Add google style docstring

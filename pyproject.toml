@@ -6,6 +6,7 @@ readme = "README.md"
 authors = [{ name = "Chu Zhen Hao" }]
 requires-python = ">=3.10"
 dependencies = [
+    "blake3>=1.0.8",
     "typer>=0.19.2",
     "typing-extensions>=4.12.2 ; python_full_version < '3.11'",
 ]
@@ -31,3 +32,39 @@ dev = [
 dev-extras = ["ipykernel>=7.0.1", "ipython>=8.37.0"]
 
 [tool]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F"]
+extend-select = [
+    "A",
+    "ANN",
+    "B",
+    "BLE",
+    "C4",
+    "COM",
+    "D",
+    "FA",
+    "FURB",
+    "G",
+    "I",
+    "ICN",
+    "ISC",
+    "N",
+    "PERF",
+    "PIE",
+    "PTH",
+    "PT",
+    "Q",
+    "RET",
+    "RSE",
+    "S",
+    "SIM",
+    "T20",
+    "UP",
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
