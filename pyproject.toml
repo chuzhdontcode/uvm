@@ -42,6 +42,8 @@ update_changelog_on_bump = true
 changelog_file = "CHANGELOG.md"
 
 [tool.ruff]
+output-format = "concise"
+show-fixes = true
 line-length = 88
 
 [tool.ruff.lint]
@@ -73,10 +75,10 @@ extend-select = [
     "T20",
     "UP",
 ]
+ignore = ["D100", "D104"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S"]
-"integration_tests/**" = ["S"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
