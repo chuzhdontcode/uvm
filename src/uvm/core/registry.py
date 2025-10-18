@@ -26,10 +26,12 @@ from uvm import log
 
 from ..utilities.path_utils import (
     ensure_managed_env_path,
+    get_managed_env_root,
     get_uvm_home,
     normalize_env_path,
     validate_safe_path,
 )
+from . import env_manager
 
 __all__ = [
     "EnvironmentEntry",
@@ -449,6 +451,151 @@ class Registry:
 
         self._write_payload(payload)
         return stale
+
+    def create_global_environment(
+        self,
+        name: str,
+        python: str | None = None,
+    ) -> EnvironmentEntry:
+        """Create a new global environment in the managed environments directory.
+
+        Args:
+            name: The name for the environment.
+            python: Optional Python version specifier.
+
+        Returns:
+            The created EnvironmentEntry.
+
+        Raises:
+            EntryAlreadyExistsError: If an environment with the same name exists.
+            EnvironmentCreationError: If environment creation fails.
+        """
+        # Check if environment already exists
+        with self._memory_lock:
+            self._ensure_loaded()
+            if name in self._entries:
+                raise EntryAlreadyExistsError(
+                    f"Environment '{name}' already exists.",
+                )
+
+        # Determine the environment path
+        managed_root = get_managed_env_root(self._environ)
+        env_path = managed_root / name
+
+        # Create the environment
+        entry = env_manager.create_environment(
+            name=name,
+            location=env_path,
+            python=python,
+            environ=dict(self._environ),
+        )
+
+        # Add to registry
+        self.add(entry, require_managed=True)
+        return entry
+
+    def create_project_environment(
+        self,
+        name: str,
+        project_path: Path,
+        python: str | None = None,
+    ) -> EnvironmentEntry:
+        """Create a new project-local environment.
+
+        Args:
+            name: The name for the environment.
+            project_path: The project directory path.
+            python: Optional Python version specifier.
+
+        Returns:
+            The created EnvironmentEntry.
+
+        Raises:
+            EntryAlreadyExistsError: If an environment with the same name exists.
+            EnvironmentCreationError: If environment creation fails.
+        """
+        # Check if environment already exists
+        with self._memory_lock:
+            self._ensure_loaded()
+            if name in self._entries:
+                raise EntryAlreadyExistsError(
+                    f"Environment '{name}' already exists.",
+                )
+
+        # Determine the environment path (.venv in project directory)
+        env_path = project_path / ".venv"
+
+        # Create the environment
+        entry = env_manager.create_environment(
+            name=name,
+            location=env_path,
+            python=python,
+            environ=dict(self._environ),
+        )
+
+        # Add project path metadata
+        entry.metadata["project_path"] = str(project_path)
+
+        # Add to registry
+        self.add(entry)
+        return entry
+
+    def link_environment(
+        self,
+        name: str,
+        path: Path,
+        project_path: Path | None = None,
+    ) -> EnvironmentEntry:
+        """Link an existing environment to the registry.
+
+        Args:
+            name: The name for the environment entry.
+            path: The path to the existing environment.
+            project_path: Optional associated project path.
+
+        Returns:
+            The linked EnvironmentEntry.
+
+        Raises:
+            EntryAlreadyExistsError: If an environment with the same name exists.
+            InvalidEnvironmentError: If the path is not a valid environment.
+        """
+        # Check if environment already exists
+        with self._memory_lock:
+            self._ensure_loaded()
+            if name in self._entries:
+                raise EntryAlreadyExistsError(
+                    f"Environment '{name}' already exists.",
+                )
+
+        # Validate the environment
+        if not env_manager.validate_environment(path):
+            raise env_manager.InvalidEnvironmentError(
+                f"Path '{path}' is not a valid virtual environment.",
+            )
+
+        # Get Python version
+        python_version = env_manager.get_python_version(path)
+
+        # Determine if this is project-local
+        managed_root = get_managed_env_root(self._environ)
+        is_project_local = not path.is_relative_to(managed_root)
+
+        # Create the entry
+        entry = EnvironmentEntry(
+            name=name,
+            location=path,
+            python_version=python_version,
+            is_project_local=is_project_local,
+        )
+
+        # Add project path metadata if provided
+        if project_path:
+            entry.metadata["project_path"] = str(project_path)
+
+        # Add to registry
+        self.add(entry)
+        return entry
 
     def reload(self) -> None:
         """Force a reload of the registry from disk."""
